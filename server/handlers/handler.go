@@ -21,27 +21,29 @@ type Handler struct {
 	assigncoll *mongo.Collection
 	subcoll    *mongo.Collection
 	procoll    *mongo.Collection
+	gracoll    *mongo.Collection
 }
 
 func GetHandler(ctx context.Context) *Handler {
-	db :=getdb()
+	db := getdb()
 	return &Handler{
-		ctx:ctx,
-		database: db,
-		usercoll: db.Collection("users"),
+		ctx:        ctx,
+		database:   db,
+		usercoll:   db.Collection("users"),
 		assigncoll: db.Collection("assignments"),
-		subcoll: db.Collection("submissions"),
-		procoll: db.Collection("problems"),
+		subcoll:    db.Collection("submissions"),
+		procoll:    db.Collection("problems"),
+		gracoll:    db.Collection("graders"),
 	}
 }
-func getdb() *mongo.Database{
-	clientOptions :=options.Client().ApplyURI(dburl)
-	client,err:=mongo.Connect(context.Background(),clientOptions)
-	if err!=nil {
+func getdb() *mongo.Database {
+	clientOptions := options.Client().ApplyURI(dburl)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
 		log.Fatal(err)
 	}
-	err = client.Ping(context.Background(),nil)
-	if err!=nil {
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Mongo connected successfully!")
