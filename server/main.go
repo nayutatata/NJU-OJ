@@ -2,30 +2,29 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"server/handlers"
-	"server/judger"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	code := `
-		#include <iostream>
-		using namespace std;
-		int main(){
-			int n;
-			cin>>n;
-			cout<<n+1;
-		}
-	`
-	inputs := make([]string, 0)
-	inputs = append(inputs, "1")
-	outputs := make([]string, 0)
-	outputs = append(outputs, "2")
-	res := judger.Judge_samples(code, inputs, outputs)
-	fmt.Println(res)
+	/*
+		code := `
+			#include <iostream>
+			using namespace std;
+			int main(){
+				int n;
+				cin>>n;
+				cout<<n+1;
+			}
+		`
+		inputs := make([]string, 0)
+		inputs = append(inputs, "1")
+		outputs := make([]string, 0)
+		outputs = append(outputs, "2")
+		res := judger.Judge_samples(code, inputs, outputs)
+		fmt.Println(res)*/
 
 	h := handlers.GetHandler(context.Background())
 	r := gin.Default()

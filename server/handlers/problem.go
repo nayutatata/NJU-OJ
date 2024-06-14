@@ -88,19 +88,37 @@ func (h *Handler) http_get_problem_by_number(c *gin.Context) {
 	})
 }
 func (h *Handler) http_add_problem(c *gin.Context) {
+	type Temp struct {
+		Title   string   `json:"title"`
+		Dec     string   `json:"dec"`
+		Inputs  []string `json:"inputs"`
+		Outputs []string `json:"outputs"`
+	}
+	var a Temp
 	var problem module.Problem_t
-	err := c.ShouldBindJSON(&problem)
+	var grader module.Grader_t
+	err := c.ShouldBindJSON(&a)
 	if err != nil {
 		c.String(http.StatusBadRequest, "Invalid problem json.")
 	}
+	problem.Dec = a.Dec
+	problem.Title = a.Title
+	grader.Inputs = a.Inputs
+	grader.Outputs = a.Outputs
 	mutex.Lock()
 	problem.Number = global_pnumber
 	global_pnumber++
 	mutex.Unlock()
+	grader.Pnumber = problem.Number
 	h.add_problem(problem)
+	h.Update_grader(grader)
 	c.JSON(http.StatusOK, gin.H{
 		"Result":  "Success",
-		"Problem": problem,
+		"Title":   problem.Title,
+		"Dec":     problem.Dec,
+		"Pnumber": problem.Number,
+		"Inputs":  grader.Inputs,
+		"Outputs": grader.Outputs,
 	})
 }
 func (h *Handler) http_submit(c *gin.Context) {

@@ -39,41 +39,42 @@ func (h *Handler) add_grader(grader module.Grader_t) error {
 	_, err := coll.InsertOne(h.ctx, grader)
 	return err
 }
-func (h *Handler) update_grader(grader module.Grader_t) error {
+func (h *Handler) Update_grader(grader module.Grader_t) error {
 	coll := h.gracoll
-	_, err := h.find_grader(grader.Pnumber)
-	if err != nil && err == mongo.ErrNoDocuments {
-		return h.add_grader(grader)
+	opts := options.Update().SetUpsert(true)
+	filter := bson.M{
+		"Pnumber": grader.Pnumber,
 	}
-	filter := bson.M{"Pnumber": grader.Pnumber}
-	_, err = coll.UpdateOne(h.ctx, filter, grader)
+	_, err := coll.UpdateOne(h.ctx, filter, bson.D{
+		{Key: "$set", Value: grader},
+	}, opts)
 	return err
 }
-func (h *Handler)http_add_grader(c *gin.Context) {
-	get_basic := func(c *gin.Context) (uint64,error) {
+func (h *Handler) http_add_grader(c *gin.Context) {
+	get_basic := func(c *gin.Context) (uint64, error) {
 		a := c.Param("Pnumber")
 		pnumber, err := strconv.ParseUint(a, 10, 64)
-		return pnumber,err
+		return pnumber, err
 	}
 	Pnumber, err := get_basic(c)
 	if err != nil {
-		c.String(http.StatusBadRequest,"Invalid Pnumber.")
+		c.String(http.StatusBadRequest, "Invalid Pnumber.")
 		return
 	}
 	var grader module.Grader_t
 	err = c.ShouldBindJSON(&grader)
 	if err != nil {
-		c.String(http.StatusBadRequest,"Invalid information of a grader.")
+		c.String(http.StatusBadRequest, "Invalid information of a grader.")
 		return
 	}
 	grader.Pnumber = Pnumber
-	err = h.add_grader(grader)
+	err = h.Update_grader(grader)
 	if err != nil {
-		c.String(http.StatusInternalServerError,"Data Base seems to raise an error.")
+		c.String(http.StatusInternalServerError, "Data Base seems to raise an error.")
 		return
 	}
-	c.JSON(http.StatusOK,gin.H{
-		"result":"success",
+	c.JSON(http.StatusOK, gin.H{
+		"result": "success",
 	})
 }
 func (h *Handler) Init_grader(r *gin.Engine) {
@@ -91,13 +92,6 @@ func (h *Handler) Init_grader(r *gin.Engine) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	h.add_grader(
-		module.Grader_t{
-			Pnumber: 1,
-			Inputs:  []string{"100", "200", "300"},
-			Outputs: []string{"101", "201", "300"},
-		},
-	)
 	group := r.Group("grader")
 	group.POST("/:Pnumber", h.http_add_grader)
 }

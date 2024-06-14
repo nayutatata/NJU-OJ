@@ -60,7 +60,7 @@ func (h *Handler) http_add_user(c *gin.Context) {
 	user, err := get_created_user(c)
 	// 从请求中拿出一个JSON表示要创建的用户的信息
 	if err != nil {
-		c.String(http.StatusBadRequest,"Invalid user json.")
+		c.String(http.StatusBadRequest, "Invalid user json.")
 		return
 	}
 	h.find_and_do(user.Account, c, func(u module.User_t) error {
@@ -124,6 +124,12 @@ func (h *Handler) Init_user(r *gin.Engine) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	h.create_user(module.User_t{
+		Account:  "0",
+		Name:     "admin",
+		Password: "123",
+		Level:    module.Teacher,
+	})
 	group := r.Group("/user")
 	// 下面可以进行一些路由注册
 	group.POST("/register", h.http_add_user)

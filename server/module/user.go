@@ -3,8 +3,8 @@ package module
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
-	teacher int = 1
-	student int = 2
+	Teacher int = 2
+	Student int = 1
 )
 
 type User_t struct {

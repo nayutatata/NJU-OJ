@@ -128,7 +128,11 @@ func Judge_samples(answer string, inputs, outputs []string) string {
 		log.Fatal(err)
 	}
 
-	return regular(judge_res.String())
+	val := regular(judge_res.String())
+	if len(val) > 8 && val[1] == 'C' {
+		return val[1:]
+	}
+	return val
 }
 func create_file(path string, content string, cli *client.Client, ctx context.Context, containerID string) error {
 	command := fmt.Sprintf("echo \"%s\" > %s", content, path)
